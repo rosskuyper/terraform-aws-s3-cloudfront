@@ -1,22 +1,13 @@
 # https://www.terraform.io/docs/modules/index.html#standard-module-structure
 
-provider "aws" {
-  alias = "main"
-}
-
-provider "aws" {
-  alias = "virginia"
-}
-
 data "aws_region" "current" {}
 
 #######
 # S3 Buckets
 #######
 resource "aws_s3_bucket" "main" {
-  provider = aws.main
-  bucket   = "rk-website-${var.name}-${data.aws_region.current.name}"
-  acl      = "private"
+  bucket = "rk-website-${var.name}-${data.aws_region.current.name}"
+  acl    = "private"
 
   versioning {
     enabled = var.versioning_enabled
@@ -40,12 +31,10 @@ locals {
 }
 
 resource "aws_cloudfront_origin_access_identity" "main" {
-  provider = aws.virginia
-  comment  = "Created by Terraform (${var.name})"
+  comment = "Created by Terraform (${var.name})"
 }
 
 resource "aws_cloudfront_distribution" "main" {
-  provider            = aws.virginia
   aliases             = var.domain_names
   enabled             = true
   is_ipv6_enabled     = true
@@ -99,8 +88,7 @@ resource "aws_cloudfront_distribution" "main" {
 # DNS for Cloudfront
 #######
 resource "aws_route53_record" "main" {
-  count    = length(var.domain_names)
-  provider = aws.virginia
+  count = length(var.domain_names)
 
   zone_id = var.zone_id
   name    = var.domain_names[count.index]
@@ -111,4 +99,31 @@ resource "aws_route53_record" "main" {
     zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
     evaluate_target_health = false
   }
+}
+
+#######
+# Policies
+#######
+data "aws_iam_policy_document" "main" {
+  statement {
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+    ]
+
+    resources = [
+        aws_s3_bucket.main.arn
+        "${aws_s3_bucket.main.arn}/*"
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.main.iam_arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "main" {
+  bucket = aws_s3_bucket.main.id
+  policy = data.aws_iam_policy_document.main.json
 }
