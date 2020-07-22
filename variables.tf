@@ -20,11 +20,6 @@ variable "certificate_arn" {
   type        = string
 }
 
-variable "s3_kms_key_id" {
-  description = "ARN / id of the SSM key used for s3 server side encryption."
-  type        = string
-}
-
 variable "versioning_enabled" {
   description = "Whether s3 versioning should be enabled for the bucket."
   type        = bool
