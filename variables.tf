@@ -32,7 +32,7 @@ variable "default_root_object" {
   default     = "index.html"
 
   validation {
-    condition     = substr(var.image_id, 0, 1) != "/"
+    condition     = substr(var.default_root_object, 0, 1) != "/"
     error_message = "The default_root_object specified must not start with a slash."
   }
 }
