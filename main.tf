@@ -74,7 +74,7 @@ resource "aws_cloudfront_distribution" "main" {
     error_caching_min_ttl = 60
     error_code            = 404
     response_code         = 200
-    response_page_path    = var.default_root_object
+    response_page_path    = "/${var.default_root_object}"
   }
 
   restrictions {

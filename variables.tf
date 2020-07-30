@@ -30,6 +30,11 @@ variable "default_root_object" {
   description = "Default root object for the Cloudfront distribution."
   type        = string
   default     = "index.html"
+
+  validation {
+    condition     = substr(var.image_id, 0, 1) != "/"
+    error_message = "The default_root_object specified must not start with a slash."
+  }
 }
 
 variable "minimum_protocol_version" {
