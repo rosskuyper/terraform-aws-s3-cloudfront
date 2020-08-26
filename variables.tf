@@ -13,6 +13,7 @@ variable "domain_names" {
 variable "zone_id" {
   description = "Route 53 zone ID for DNS records."
   type        = string
+  default     = null
 }
 
 variable "certificate_arn" {

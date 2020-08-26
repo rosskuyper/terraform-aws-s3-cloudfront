@@ -94,7 +94,7 @@ resource "aws_cloudfront_distribution" "main" {
 # DNS for Cloudfront
 #######
 resource "aws_route53_record" "main" {
-  count = length(var.domain_names)
+  count = var.zone_id != null ? length(var.domain_names) : 0
 
   zone_id = var.zone_id
   name    = var.domain_names[count.index]
